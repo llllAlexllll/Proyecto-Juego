@@ -12,7 +12,7 @@ body, html {
   .left-panel,
   .right-panel {
     width: 30%;
-    border: 1px solid #ccc; /* Borde entre las secciones */
+    border: 1px solid #ccc; 
     background-color: #f0f0f0; 
     align-items: center;
     display: flex;
@@ -28,16 +28,16 @@ body, html {
     justify-content: center;
     align-items: center;
     position: relative;
-    background-color: #f0f0f0; /* Color de fondo del panel central */
+    background-color: #f0f0f0; 
   }
   
   .dialog-box {
     width: 70%;
     height: 40%;
-    background-color: white; /* Color de fondo del cuadro de diálogo */
+    background-color: white; 
     border: 1px solid #ccc;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     position: relative;
     font-size: x-small;
   }
@@ -46,8 +46,8 @@ body, html {
   /* Barras de colores */
   .top-bar,
   .bottom-bar {
-    height: 60px; /* Altura de las barras de colores */
-    background-color: #222; /* Color de las barras */
+    height: 60px;
+    background-color: #222; 
     width: 100%;
     position: absolute;
   }
@@ -62,8 +62,8 @@ body, html {
 
   .top-bar2,
   .bottom-bar2 {
-    height: 60px; /* Altura de las barras de colores */
-    background-color: #222; /* Color de las barras */
+    height: 60px;
+    background-color: #222; 
     width: 100%;
     position: absolute;
   }
