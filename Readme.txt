@@ -1,0 +1,1 @@
+Buenas , por las dudas hay un boton de agregar mob abajo a la izq.

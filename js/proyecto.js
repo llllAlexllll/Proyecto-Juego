@@ -1,170 +1,224 @@
-const monstrous = [{nombre:"Slime",hp:"10",atk:3},{nombre:"Baphomet",hp:"10000",atk:300}]
-
-const char = [{atk:4,hp:"50"}]
-
-
-
-
-let info = document.getElementById("info")
-let notificacion = document.getElementById("notificacion")
-
-
-let avanzar = document.getElementById("avanzar")
-avanzar.addEventListener("click", clickBotton)
-function clickBotton () {
-      info.innerText=""
-      notificacion.innerText=""    
-       caminar()
-}
-
-////////////////////crear mob
-let agregarMoustro = document.getElementById("crearmob")
-
-agregarMoustro.addEventListener("click",creadorMob)
-
-function creadorMob () {
-
-  const card = document.createElement("div")
-        card.innerHTML = `<input type="text" id="nameMonster">Nombre <br>
-                          <input type="text" id="atkMonster">Ataque <br>
-                          <input type="text" id="hpMonster">Vida<br>
-                          <button id="aceptarMob">Aceptar</button>
-                          `
-      agregarMoustro.appendChild(card)
-
-      agregarMoustro.removeEventListener("click", creadorMob);
-
-      let aceptarMob = document.getElementById("aceptarMob")
-
-       aceptarMob.addEventListener("click",sumarMob)
-}
-
-function sumarMob(){
-  const nameInput = document.getElementById("nameMonster").value
-  const atkInput = document.getElementById("atkMonster").value
-  const hpInput = document.getElementById("hpMonster").value
-
-  const monstruo = {
-    nombre: nameInput,
-    atk: parseInt(atkInput),
-    hp: parseInt(hpInput)
+let player = {
+  level: 1,
+  exp: 0,
+  maxExp: 25,
+  attack: 1000,
+  hitPoints: 1000
 };
-monstrous.push(monstruo);
 
-document.getElementById("nameMonster").value = "";
-document.getElementById("atkMonster").value = "";
-document.getElementById("hpMonster").value = "";
-
-infoMob.innerHTML = "";
-renderMobs(monstrous)
-
-localStorage.setItem("monstrouPersonalizados", JSON.stringify(monstrous))
-
-
-
+try {
+  const storedPlayerData = JSON.parse(localStorage.getItem("playerData"));
+  if (storedPlayerData) {
+    player = storedPlayerData;
+  } else {
+    localStorage.setItem("playerData", JSON.stringify(player));
+  }
+} catch (error) {
+  console.error('Error al cargar', error);
+} finally { 
 }
 
-//random de 0 a 9
+let monstrous = [];
+
+const info = document.getElementById("info");
+const notificacion = document.getElementById("notificacion");
+const avanzar = document.getElementById("avanzar");
+const agregarMoustro = document.getElementById("crearmob");
+const infochart = document.getElementById("infochart");
+const infoMob = document.getElementById("infomob");
+
+const storedMonstrous = JSON.parse(localStorage.getItem("monstrous")) || [];
+monstrous.push(...storedMonstrous);
+renderMobs(monstrous);
+
+avanzar.addEventListener("click", () => {
+  clickButton();
+  updateAndSavePlayerData();
+});
+
+function clickButton() {
+  info.innerText = "";
+  notificacion.innerText = "";    
+  caminar();
+}
+
+agregarMoustro.addEventListener("click", crearMob);
+
+function crearMob() {
+  Swal.fire({
+    title: 'Agregar Monstrou',
+    confirmButtonText: 'Aceptar',
+    showCancelButton: true,
+    cancelButtonText: 'Cancelar',
+    html: `
+      <input type="text" id="nameMonster" class="swal2-input" placeholder="Nombre">
+      <input type="number" id="atkMonster" class="swal2-input" placeholder="Ataque">
+      <input type="number" id="hpMonster" class="swal2-input" placeholder="Vida">
+    `,
+    preConfirm: () => {
+      const nameInput = Swal.getPopup().querySelector('#nameMonster').value;
+      const atkInput = Swal.getPopup().querySelector('#atkMonster').value;
+      const hpInput = Swal.getPopup().querySelector('#hpMonster').value;
+      if (!nameInput || !atkInput || !hpInput) {
+        Swal.showValidationMessage('Todos los campos son obligatorios');
+      }
+      return { name: nameInput, attack: parseInt(atkInput), hitPoints: parseInt(hpInput) };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const monstruo = result.value;
+      const storedMonstrous = JSON.parse(localStorage.getItem("monstrous")) || [];
+      storedMonstrous.push(monstruo);
+      localStorage.setItem("monstrous", JSON.stringify(storedMonstrous));
+      renderMobs(storedMonstrous);
+      Swal.fire({
+        title: '¡Monstrous agregado!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+  });
+}
 
 function random() {
-  let numero = (Math.random() * 10).toFixed(0)
-  return numero
+  return Math.floor(Math.random() * 10);
 }
 
+function getRandomMonster() {
+  const allMonsters = monstrous.concat(storedMonstrous);
+  const randomIndex = Math.floor(Math.random() * allMonsters.length);
+  return allMonsters[randomIndex];
+}
 
+function peleaChart(vueltas, monster) {
+  let damage = 0;
+  let life = 0;
+  let hp = monster.hitPoints;
+  let totalDamage = 0;
 
-//pelea
-function peleaChart(vueltas) {
-    let daño=0
-    let vida=0
-    let hp=monstrous[0].hp
-    let sumaDaño = 0
-    
-     for (var i = 0; i <vueltas;i++) {
-     daño = char[0].atk
-     sumaDaño += daño
-     vida = hp- sumaDaño
-     
-     
+  for (let i = 0; i < vueltas; i++) {
+      damage = player.attack;
+      totalDamage += damage;
+      life = hp - totalDamage;
 
-     if (vida <= 0){
-      
-      info.innerText +=`le has pegado ${daño}  y matado al ${monstrous[0].nombre}\n`
-      notificacion.innerHTML= `<h2> Has matado a un ${monstrous[0].nombre}</h2>`
-       
-
-        break
+      if (life <= 0) {
+          info.innerText += `Le has pegado ${damage} y matado al ${monster.name}\n`;
+          showNotification(`Has matado a un ${monster.name}`);
+          updateExp(monster.hitPoints);
+          break;
       }
-    info.innerText +=`Le has pegado al ${monstrous[0].nombre} y le quitaste ${daño} le queda de hp ${vida}\n`
-}
+      info.innerText += `Le has pegado al ${monster.name} y le quitaste ${damage}, le queda ${life} de vida\n`;
+  }
 }
 
-function peleaMonstro(vueltas){
-    let daño=0
-    let vida=0
-    let hp=char[0].hp
-    let sumaDaño = 0
-    
-     for (var i = 0; i <vueltas;i++) {
-     daño = monstrous[0].atk
-     sumaDaño += daño
-     vida = hp- sumaDaño
-     
-     
-     if (vida <= 0){
-        info.innerText +=`Te han pegado ${daño} y has muerto\n `
-        notificacion.innerHTML= `<h2> Has Muerto</h2>`
-        break
+function resetPlayer() {
+  player.level = 1;
+  player.attack = 1000;
+  player.hitPoints = 1000;
+  player.exp = 0;
+
+  localStorage.setItem("playerData", JSON.stringify(player));
+
+  infochart.querySelector("#level").innerText = `Nivel: ${player.level}`;
+  infochart.querySelector("#attack").innerText = `Ataque: ${player.attack}`;
+  infochart.querySelector("#hitPoints").innerText = `Vida: ${player.hitPoints}`;
+  infochart.querySelector("#exp").innerText = `Experiencia: ${player.exp}`;
+}
+
+function peleaMonstro(vueltas, monster) {
+  let damage = 0;
+  let life = 0;
+  let hp = parseInt(infochart.querySelector("#hitPoints").innerText.split(":")[1]);
+  let totalDamage = 0;
+
+  for (let i = 0; i < vueltas; i++) {
+      damage = monster.attack;
+      totalDamage += damage;
+      life = hp - totalDamage;
+
+      if (life <= 0) {
+          info.innerText += `Te han pegado ${damage} y has muerto\n `;
+          showNotification("Has Muerto ,y volveras a lvl 1");
+          resetPlayer();
+          break;
       }
-      info.innerText +=`Te han pegado y te quito ${daño} te queda de hp ${vida}\n `
-    
+      info.innerText += `Te han pegado y te quito ${damage}, te queda ${life} de vida\n `;
+      infochart.querySelector("#hitPoints").innerText = `Vida: ${life}`;
+      updateAndSavePlayerData()
+  }
 }
-}
-//caminar
+
 function caminar() {
-if (Math.random() < (0.5)){
-  info.innerText=`Te encontraste a un ${monstrous[0].nombre} \n`
-    if (Math.random() < (0.5)){
-    let vecesAtaque = random()
-    peleaChart(vecesAtaque)
-    peleaMonstro(vecesAtaque)
-  }else{
-    info.innerText=`El ${monstrous[0].nombre} huyo`
-  
+  if (Math.random() < 0.5) {
+      const randomMonster = getRandomMonster();
+      info.innerText = `Te encontraste a un ${randomMonster.name} \n`;
+      if (Math.random() < 0.5) {
+          const vecesAtaque = random();
+          peleaChart(vecesAtaque, randomMonster);
+          peleaMonstro(vecesAtaque, randomMonster);
+      } else {
+          info.innerText = `El ${randomMonster.name} huyó`;
+      }
+  } else {
+      info.innerText = `No hay nada`;
+  }
 }
-}else{
-  info.innerText=`No hay nada`
-
-}
-}
-
-
-///////////////panel izq
-
-
-
-let infochart = document.getElementById("infochart")
-
-infochart.innerText=`Ataque: ${char[0].atk}\n Vida: ${char[0].hp}`
-
-///////////panel der
-
-const storedMonstrous = JSON.parse(localStorage.getItem("monstrouPersonalizados"));
-
-const mobsArray = storedMonstrous || monstrous;
-
-let infoMob = document.getElementById("infomob")
 
 function renderMobs(mobsArray) {
-    mobsArray.forEach (monstrou => {
-        const card = document.createElement("div")
-        card.innerHTML = `<h3>${monstrou.nombre}</h3>
-                           <p>Ataque: ${monstrou.atk}</p>
-                          <p>Vida: ${monstrou.hp}</p>
-                          `
-       infoMob.appendChild(card)
-    })
-    
+  mobsArray.forEach(monstrou => {
+      const card = document.createElement("div");
+      card.className ="monster-card";
+      card.innerHTML = `<h3>${monstrou.name}</h3>
+                         <p>Ataque: ${monstrou.attack}</p>
+                         <p>Vida: ${monstrou.hitPoints}</p>`;
+      infoMob.appendChild(card);
+  });
 }
-renderMobs(mobsArray)
 
+infochart.innerHTML = `
+  <p id="level">Nivel: ${player.level}</p>
+  <p id="exp">Experiencia: ${player.exp}</p>
+  <p id="attack">Ataque: ${player.attack}</p>
+  <p id="hitPoints">Vida: ${player.hitPoints}</p>
+`;
+
+function updateExp(monsterLife) {
+  const expGained = Math.floor(monsterLife / 2);
+  player.exp += expGained;
+
+  if (player.exp >= player.maxExp) {
+    levelUp();
+  } else {
+    infochart.querySelector("#exp").innerText = `Experiencia: ${player.exp}`;
+  }
+}
+
+fetch('https://www.moogleapi.com/api/v1/monsters')
+  .then(response => response.json())
+  .then(data => {
+        monstrous = data;
+      renderMobs(monstrous);
+  })
+  .catch(error => console.error('Error', error));
+
+
+function showNotification(message) {
+
+  Toastify({
+      text: message,
+      duration: 3000,
+      destination: "https://github.com/apvarun/toastify-js",
+      newWindow: true,
+      close: true,
+      gravity: "top", 
+      position: "left", 
+      stopOnFocus: true, 
+      style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function(){} 
+  }).showToast();
+}
