@@ -6,6 +6,14 @@ let player = {
   hitPoints: 1000
 };
 
+infochart.innerHTML = `
+  <p id="level">Nivel: ${player.level}</p>
+  <p id="exp">Experiencia: ${player.exp}</p>
+  <p id="attack">Ataque: ${player.attack}</p>
+  <p id="hitPoints">Vida: ${player.hitPoints}</p>
+`;
+
+//para que elija primero de la memoria
 try {
   const storedPlayerData = JSON.parse(localStorage.getItem("playerData"));
   if (storedPlayerData) {
@@ -44,6 +52,7 @@ function clickButton() {
 
 agregarMoustro.addEventListener("click", crearMob);
 
+//para crear nuevos mobs usando sweetalert
 function crearMob() {
   Swal.fire({
     title: 'Agregar Monstrou',
@@ -82,11 +91,12 @@ function crearMob() {
     }
   });
 }
-
+//contador para ver cuantas veces se ataca
 function random() {
   return Math.floor(Math.random() * 10);
 }
 
+//para variar el monstrou
 function getRandomMonster() {
   const allMonsters = monstrous.concat(storedMonstrous);
   const randomIndex = Math.floor(Math.random() * allMonsters.length);
@@ -114,19 +124,6 @@ function peleaChart(vueltas, monster) {
   }
 }
 
-function resetPlayer() {
-  player.level = 1;
-  player.attack = 1000;
-  player.hitPoints = 1000;
-  player.exp = 0;
-
-  localStorage.setItem("playerData", JSON.stringify(player));
-
-  infochart.querySelector("#level").innerText = `Nivel: ${player.level}`;
-  infochart.querySelector("#attack").innerText = `Ataque: ${player.attack}`;
-  infochart.querySelector("#hitPoints").innerText = `Vida: ${player.hitPoints}`;
-  infochart.querySelector("#exp").innerText = `Experiencia: ${player.exp}`;
-}
 
 function peleaMonstro(vueltas, monster) {
   let damage = 0;
@@ -166,6 +163,20 @@ function caminar() {
       info.innerText = `No hay nada`;
   }
 }
+//cuando muere
+function resetPlayer() {
+  player.level = 1;
+  player.attack = 1000;
+  player.hitPoints = 1000;
+  player.exp = 0;
+
+  localStorage.setItem("playerData", JSON.stringify(player));
+
+  infochart.querySelector("#level").innerText = `Nivel: ${player.level}`;
+  infochart.querySelector("#attack").innerText = `Ataque: ${player.attack}`;
+  infochart.querySelector("#hitPoints").innerText = `Vida: ${player.hitPoints}`;
+  infochart.querySelector("#exp").innerText = `Experiencia: ${player.exp}`;
+}
 
 function renderMobs(mobsArray) {
   mobsArray.forEach(monstrou => {
@@ -178,13 +189,8 @@ function renderMobs(mobsArray) {
   });
 }
 
-infochart.innerHTML = `
-  <p id="level">Nivel: ${player.level}</p>
-  <p id="exp">Experiencia: ${player.exp}</p>
-  <p id="attack">Ataque: ${player.attack}</p>
-  <p id="hitPoints">Vida: ${player.hitPoints}</p>
-`;
 
+//exp que gana 
 function updateExp(monsterLife) {
   const expGained = Math.floor(monsterLife / 2);
   player.exp += expGained;
@@ -196,6 +202,7 @@ function updateExp(monsterLife) {
   }
 }
 
+//api con datos de monstrous
 fetch('https://www.moogleapi.com/api/v1/monsters')
   .then(response => response.json())
   .then(data => {
