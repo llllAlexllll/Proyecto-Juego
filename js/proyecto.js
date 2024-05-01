@@ -6,13 +6,6 @@ let player = {
   hitPoints: 1000
 };
 
-infochart.innerHTML = `
-  <p id="level">Nivel: ${player.level}</p>
-  <p id="exp">Experiencia: ${player.exp}</p>
-  <p id="attack">Ataque: ${player.attack}</p>
-  <p id="hitPoints">Vida: ${player.hitPoints}</p>
-`;
-
 //para que elija primero de la memoria
 try {
   const storedPlayerData = JSON.parse(localStorage.getItem("playerData"));
@@ -52,6 +45,14 @@ function clickButton() {
 
 agregarMoustro.addEventListener("click", crearMob);
 
+infochart.innerHTML = `
+  <p id="level">Nivel: ${player.level}</p>
+  <p id="exp">Experiencia: ${player.exp}</p>
+  <p id="attack">Ataque: ${player.attack}</p>
+  <p id="hitPoints">Vida: ${player.hitPoints}</p>
+`;
+
+
 //para crear nuevos mobs usando sweetalert
 function crearMob() {
   Swal.fire({
@@ -81,7 +82,7 @@ function crearMob() {
       localStorage.setItem("monstrous", JSON.stringify(storedMonstrous));
       renderMobs(storedMonstrous);
       Swal.fire({
-        title: '¡Monstrous agregado!',
+        title: '¡Monstrou agregado!',
         icon: 'success',
         timer: 1500,
         showConfirmButton: false
